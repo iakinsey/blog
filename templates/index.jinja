@@ -1,0 +1,9 @@
+{% extends "base.jinja" %}
+{% block title %}Blog{% endblock %}
+{% block content %}
+    {% for article in articles %}
+        <div class="article">
+            {{ article }}
+        </div>
+    {% endfor %}
+{% endblock %}
