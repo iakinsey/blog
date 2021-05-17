@@ -56,3 +56,13 @@ a:hover {
 #logo a {
     color: #d4d4d4;
 }
+
+#social li {
+    font-size: 28px;
+}
+
+.meow {
+    width: 95%;
+    height: auto;
+    padding: 20px;
+}
