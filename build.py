@@ -38,7 +38,7 @@ ENV = Environment(
     trim_blocks=True,
     lstrip_blocks=True
 )
-
+ENV.globals['current_year'] = datetime.now().year
 
 def render_pages():
     for page in PAGES:
@@ -78,9 +78,10 @@ def get_article(article):
     md = open(join(ARTICLES_DIR, article)).read()
     url = urljoin(URL, f"/articles/{article}.html")
     title = md.split("\n")[0].replace("#", "").strip()
-    md_content = md.replace(title, f"[{title}]({url})", 1)
     datestr = search(SLUG_DATE_REGEX, article)[0]
     date = datetime.strptime(datestr, '%Y-%m-%d')
+    published = f"####{date.strftime('%B %d, %Y')}"
+    md_content = md.replace(title, f"[{title}]({url})\n{published}", 1)
 
     return {
         "html": markdown(md_content),
