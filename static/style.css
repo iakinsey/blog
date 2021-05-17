@@ -6,11 +6,11 @@ body {
 
 a {
     text-decoration: none;
-    color: #ff9933;
+    color: #8787af;
 }
 
 a:hover {
-    color: #8787af;
+    color: #afd700;
 }
 
 #container {
@@ -41,6 +41,16 @@ a:hover {
 #nav {
     text-align: center;
     padding-bottom: 10px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#nav a {
+    color: #afd700;
+}
+
+#nav a:hover {
+    color: #8787af;
 }
 
 #logo a {

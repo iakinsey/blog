@@ -40,6 +40,7 @@ ENV = Environment(
 )
 ENV.globals['current_year'] = datetime.now().year
 
+
 def render_pages():
     for page in PAGES:
         template = ENV.get_template(f"{page}.jinja")
