@@ -76,18 +76,20 @@ def get_article_contents(name):
 @cache
 def get_article(article):
     md = open(join(ARTICLES_DIR, article)).read()
-    url = urljoin(URL, f"/articles/{article}.html")
+    short_url = f"/articles/{article}.html"
+    url = urljoin(URL, short_url)
     title = md.split("\n")[0].replace("#", "").strip()
     datestr = search(SLUG_DATE_REGEX, article)[0]
     date = datetime.strptime(datestr, '%Y-%m-%d')
     published = f"####{date.strftime('%B %d, %Y')}"
-    md_content = md.replace(title, f"[{title}]({url})\n{published}", 1)
+    md_content = md.replace(title, f"[{title}]({short_url})\n{published}", 1)
 
     return {
         "html": markdown(md_content),
         "title": title,
         "name": article,
         "url": url,
+        "short_url": url,
         "date": f"{date}T00:00:00+00:00",
         "strdate": date
     }

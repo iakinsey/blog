@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %} - Ian Kinsey</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="icon" href="/favicon.png" />
+    <meta property="og:description" content="Thoughts on software">
+    <meta property="og:image" content="http://iankinsey.com/ogimage.png">
+    <meta property="og:url" content="https://iankinsey.com">
+    <meta name="twitter:description" content="Thoughts on software.">
+    <meta name="twitter:image" content="http://iankinsey.com/ogimage.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+    <div id="container">
+        <div id="logo">
+            {% block logo %}
+                <a href="/">THOUGHTS ON SOFTWARE</a>
+            {% endblock %}
+        </div>
+        <div id="head">
+            <div id="nav">
+                <a href="/">Blog</a> |
+                <a href="/projects.html">Projects</a> | 
+                <a href="/about.html">About</a>
+            </div>
+        </div>
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <div id="footer">Ian Kinsey {{ current_year }}</div>
+    </div>
+</body>
+</html>

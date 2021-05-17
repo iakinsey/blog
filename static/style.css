@@ -1,5 +1,5 @@
 body {
-    background-color: #323232;
+    background-color: #292929;
     color: #d4d4d4;
     font-family: "Lucida Console", Monaco, monospace;
 }
@@ -31,4 +31,18 @@ a:hover {
 #footer {
     padding-top: 25px;
     text-align: center;
+}
+
+#logo {
+    font-size: 75px;
+    text-align: center;
+}
+
+#nav {
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+#logo a {
+    color: #d4d4d4;
 }
