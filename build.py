@@ -32,6 +32,7 @@ ARTICLES = [
     i for i in listdir(ARTICLES_DIR)
     if match(SLUG_REGEX, i)
 ]
+ARTICLES.sort(reverse=True)
 ENV = Environment(
     loader=FileSystemLoader(TEMPLATES_DIR),
     autoescape=select_autoescape(),
@@ -92,7 +93,7 @@ def get_article(article):
         "url": url,
         "short_url": url,
         "date": f"{date}T00:00:00+00:00",
-        "strdate": date
+        "parsed_date": date
     }
 
 

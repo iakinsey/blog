@@ -23,16 +23,16 @@
         </div>
         <div id="head">
             <div id="nav">
-                <a href="/">Blog</a> |
-                <a href="/projects.html">Projects</a> | 
-                <a href="/about.html">About</a>
+                <a class="outer-link" href="/">Blog</a> |
+                <a class="outer-link" href="/projects.html">Projects</a> | 
+                <a class="outer-link" href="/about.html">About</a>
             </div>
         </div>
         <div id="content">
             {% block content %}
             {% endblock %}
         </div>
-        <div id="footer">Ian Kinsey {{ current_year }}</div>
+        <div id="footer">Ian Kinsey {{ current_year }} | <a class="outer-link" href="/rss.xml">RSS</a></div>
     </div>
 </body>
 </html>
