@@ -1,6 +1,8 @@
 #Summary of Crawling tor
 
-![Graph of tor](/2018-tor-crawl-header.png)
+<div align="center">
+    <img src="/2018-tor-crawl-header.png" />
+</div>
 
 ## Synopsis
 
@@ -33,14 +35,19 @@ Extract all .onion domains from the first Google search result page for the quer
  * Total active edges: 83,14
  * Total pages crawled: 28,553
 
-
 ### Language
 
-![Tor language breakdown](/tor-lang.png)
+<div align="center">
+    <img src="/tor-lang.png" />
+</div>
+
 
 ### HTTP Responses
 
-![Tor HTTP Response breakdown](/tor-http-response.png)
+<div align="center">
+    <img src="/tor-http-response.png" />
+</div>
+
 
 
 ## Shortcomings/Improvements
@@ -83,35 +90,47 @@ Extract all .onion domains from the first Google search result page for the quer
 
 ### Enumeration of .onion hash space
 
-
 The crawler found a website that enumerated every single domain. Fortunately, the frontier did not prioritize this website, as there were a large number of domains that remained uncrawled. This page was of particular interest, due to the existence of a mirror. This mirror guaranteed that the enumerated websites would have an indegree of >= 2, which may fool some graph-based frontier strategies.
 
 Anomaly visualized within directed graph
-![Tor anomaly 1](/tor-anomaly-1.png)
+<div align="center">
+    <img src="/tor-anomaly-1.png" />
+</div>
+
 
 Request by hidden service owner to feed website to web crawlers
-![Tor anomaly 2](/tor-anomaly-2.png)
+<div align="center">
+    <img src="/tor-anomaly-2.png" />
+</div>
 
 Better view of the anomaly within directed graph
-![Tor anomaly 3](/tor-anomaly-3.png)
-
+<div align="center">
+    <img src="/tor-anomaly-3.png" />
+</div>
 
 ### Unconnected segments in the directed graph
 
 Small unconnected network found during initial visualization attempts. The other  two nodes to the right later connected with the primary network as the crawl continued.
 
-![Tor anomaly 4](/tor-anomaly-4.png)
+<div align="center">
+    <img src="/tor-anomaly-4.png" />
+</div>
 
 Potential fraud or law enforcement?
-![Tor anomaly 5](/tor-anomaly-5.png)
+<div align="center">
+    <img src="/tor-anomaly-5.png" />
+</div>
 
 ### Subdomain enumeration
 
 Adversarial website which uses subdomains to attack the frontier manager, initially thought to be a bug. After discovering this website, the frontier manager was changed to no longer consider a subdomain to be the “primary” unique identifier. The website contains a privacy manifesto not shown on this document.
 
-![Tor anomaly 6](/tor-anomaly-6.png)
-
+<div align="center">
+    <img src="/tor-anomaly-6.png" />
+</div>
 
 ## Full visualization
 
-![Tor](/2018-tor-complete.png)
+<div align="center">
+    <img src="/2018-tor-complete.png" />
+</div>

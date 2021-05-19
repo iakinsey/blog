@@ -76,3 +76,10 @@ a:hover {
     padding-bottom: 12px;
 }
 
+
+code {
+  width: 480px;
+  color: #43892a;
+  background-color: #000;
+  display: block;
+}

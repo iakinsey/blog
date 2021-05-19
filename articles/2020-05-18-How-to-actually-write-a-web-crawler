@@ -1,0 +1,65 @@
+# Breaking down web crawlers
+
+## Primitives
+
+### Resource Fetcher
+ * Downloads resources from the web.
+ * Resources are generally webpages identified by a URI.
+ * Sends resources to the Resource Extractor.
+
+### Resource Extractor
+ * Extracts URIs from downloaded content.
+ * This is typically where out-of-the-loop business logic for analysis starts.
+ * Sends URIs to the Frontier Manager.
+
+### Frontier Manager
+ * Determines what URIs should be downloaded next.
+ * Duplicate and unwanted URI's are filtered out.
+ * Sends prioritized URIs to the Resource Fetcher.
+
+<div align="center">
+    <img src="/crawler-primitives.png" />
+    <p><strong>Fig 1. The core loop of web crawler primitives.</strong></p>
+</div>
+
+## Filtering URIs
+
+Duplicated links and pages already visited by the web crawler need to be
+filtered out before being passed to a fetcher. A
+[bloom filter](https://en.wikipedia.org/wiki/Bloom_filter),
+[hash table](https://en.wikipedia.org/wiki/Hash_table), or combination of both
+can be used in this instance.
+
+Bloom filters are not perfect, lookups can return false positives. However, the
+error rate for false positives can be tracked and adjusted as the structure
+fills up. If the filtering constraints allow for a margin of error, then a
+bloom filter can be used in isolation, otherwise it must be used in combination
+with a hash table.
+
+Hash tables allow for quick lookups without false positives. However, storage
+and sharding constraints often become a major problem as the index grows in
+scale. If the hash table is persistent, then IO constraints become another
+factor. A hash table can be used in isolation if these factors are taken into
+consideration.
+
+## Resource prioritization
+
+### Stages in the crawl
+### Adversarial environment
+#### Rate limiting
+#### Crawler traps
+#### Non webpages
+
+
+## Performance
+
+### Language and environment
+### IO and CPU
+
+## Common mistakes
+
+## Overscaling
+
+## Underscaling
+
+## Conclusion
