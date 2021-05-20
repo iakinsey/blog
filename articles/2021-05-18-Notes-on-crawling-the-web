@@ -1,0 +1,194 @@
+# Notes on crawling the web
+
+## Introduction
+
+Web crawlers are a very common, yet often misunderstood, category of software
+solutions. Here is a list of common problems/solutions/gotchas/etc I've
+encountered over the years. Hopefully it aids others interested in the problem
+space.
+
+## Primitives
+
+### Resource Fetcher
+ * Downloads resources from the web.
+ * Resources are generally webpages identified by a URI.
+ * Sends resources to the Resource Extractor.
+
+### Resource Extractor
+ * Extracts URIs from downloaded content.
+ * This is typically where out-of-the-loop business logic for analysis starts.
+ * Sends URIs to the Frontier Strategy.
+
+### Frontier Strategy
+ * Determines what URIs should be downloaded next.
+ * Filters out duplicate and unwanted URIs.
+ * Sends prioritized URIs to the Resource Fetcher.
+
+<div align="center">
+    <img src="/crawler-primitives.png" />
+    <p><strong>Fig 1. The core loop of web crawler primitives.</strong></p>
+</div>
+
+## Filtering URIs
+
+### Duplicate detection
+
+Duplicated links and pages already visited by the web crawler need to be
+filtered out before being passed to a fetcher. A
+[bloom filter](https://en.wikipedia.org/wiki/Bloom_filter),
+[hash table](https://en.wikipedia.org/wiki/Hash_table), or combination of both
+can be used in this instance.
+
+Bloom filters are not perfect, lookups can return false positives. However, the
+error rate for false positives can be tracked and adjusted as the structure
+fills up. If the filtering constraints allow for a margin of error, then a
+bloom filter can be used in isolation, otherwise it must be used in combination
+with a hash table.
+
+Hash tables allow for quick lookups without false positives. However, storage
+and sharding constraints often become a major problem as the index grows in
+scale. If the hash table is persistent, then IO constraints become another
+factor. A hash table can be used in isolation if these factors are taken into
+consideration.
+
+## Resource Extraction
+
+The encoding and format of online content varies considerably, formatting
+standards are more like guidelines than actual rules. It's important to take
+these factors into consideration. A 
+[finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine)
+based parser is an ideal extraction solution, as it can handle multiple
+formats and ignore conventions.
+
+### Content storage
+
+Fetched content will need to be accessed by various stages in the pipeline. For
+single-node instances, the filesystem is more than sufficient. It's important
+to have a mechanism that expires 
+
+ * [Amazon S3](https://aws.amazon.com/s3/) is a great cloud solution.
+ * [Swift](https://github.com/openstack/swift) is a solid open source solution.
+ * [stream-store](https://github.com/iakinsey/stream-store) is a tool I wrote
+   that meets the bare-minimum requirements for small scale crawl storage.
+
+### Zero-copy
+
+Employing some form of [zero-copy](https://en.wikipedia.org/wiki/Zero-copy)
+when fetching resources will substantially reduce CPU usage and makes
+single-node crawling significantly more tenable. However, most HTTP libraries
+will not support this out of the box, you may have to write one on your own.
+
+## Resource prioritization
+
+### Crawling a single website or limited number of domains
+
+Typically, resource prioritization is not required when crawling single or
+limited set of websites. Either specialized business logic is used to filter
+URIs or the entire set is enumerated.
+
+### PageRank
+
+[PageRank](https://en.wikipedia.org/wiki/PageRank) is a very solid
+ranking algorithm and offers an excellent starting point when building a web
+crawler. It's not uncommon for solutions such as Neo4j to offer
+production-ready
+[implementations](https://neo4j.com/docs/graph-data-science/current/algorithms/page-rank/).
+Nearly every major programming language has a third-party PageRank library
+available.
+
+### Vertex counting (in-degree/out-degree)
+
+Prioritizing based on edge count works relatively well on smaller domain sets.
+In-degree serves as a weak proxy for ranking pages that might be useful for
+analysis. Out-degree is often an excellent indicator for ranking pages that
+can expand the graph. However, vertex and unique domain counts are often
+exploited by adversarial pages trying to improve search ranking (see the
+**Adversarial environment** section for more).
+
+### Community detection
+
+When prioritizing resources based on 
+[community structure](https://en.wikipedia.org/wiki/Community_structure), a 
+clustering method is necessary. My experience with this is limited, but the
+following algorithms have been useful when performing community detection:
+
+* [Louvain method](https://en.wikipedia.org/wiki/Louvain_method)
+* [Chinese whispers](https://en.wikipedia.org/wiki/Chinese_whispers_(clustering_method))
+
+### Expressing priority
+
+Ranking algorithm output must be compatible with consumer priority. Different
+stages in the core loop usually communicate using some form of a message queue.
+Message brokers like RabbitMQ support 
+[consumer priority](https://www.rabbitmq.com/consumer-priority.html)
+out-of-the box. Others, like Kafka, require setting up separate queues.
+
+## Adversarial environment
+
+It's not uncommon to run into websites that will break your web crawler. This
+can sometimes be intentional and/or malicious, but not always. 
+
+### Rate limiting
+
+Some websites may, understandably, seek to rate limit requests. To manage
+this situation, the fetcher will need to track error rates over time and defer
+fetching URIs for later.
+
+### XSS
+
+Be extremely careful when rendering crawled content in a web browser. It is
+not uncommon to find websites that include malicious XSS attacks.
+
+### Crawler traps and depth limits
+
+Some websites may either be too large, or employ strategies to keep your
+crawler hyperfocused on their content.
+
+Mitigation:
+
+ * Set per-website depth limits or maximum page counts.
+ * Do not count subdomains separately.
+ * If community detection is employed, then consider community-level maximums.
+ * Block websites that lead your crawler to a large number of erroneous
+   requests.
+
+### Standards don't exist
+
+Responses may not always follow convention. An HTTP header could be malformed,
+the indicated Content-Length may be incorrect, or the server feeds you random
+bytes for as long as possible.
+
+Mitigation:
+
+ * Set a maximum byte size for the HTTP header and content read buffers.
+ * Set timeouts for header/content reads/writes.
+ * Assume unstructured formats, use finite-state machines to parse out relevant
+   content.
+
+### robots.txt
+
+**DO NOT** ignore the robots.txt file. This is the shortest path to getting
+blacklisted or having your infrastructure shut down. Your user agent will be
+tracked and published by third parties, so play nice.
+
+Some robots.txt files will include a honeypot within *Disallow* links. Visiting
+these URIs may intentionally waste resources or ban your crawler's IP address.
+Play nice and don't visit *Disallow* links.
+
+### Website admins will complain
+
+Administrators will notice high request volume. Having contact information
+readily available for them will prevent any complaints going into your cloud
+provider's inbox.
+
+Mitigation:
+
+ * Set your user agent as a disposable email.
+ * Expose a web server on the fetcher's IP addresses containing information
+   about the web crawler. This is recommended practice for
+   [tor exit nodes](https://gitweb.torproject.org/tor.git/plain/contrib/operator-tools/tor-exit-notice.html).
+
+## But I want to crawl the WHOLE web
+
+A few line items in an article cannot do this problem justice. I may
+potentially write about how to do this in a future article.
