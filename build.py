@@ -83,7 +83,7 @@ def get_article(article):
     title = md.split("\n")[0].replace("#", "").strip()
     datestr = search(SLUG_DATE_REGEX, article)[0]
     date = datetime.strptime(datestr, '%Y-%m-%d')
-    published = f"####{date.strftime('%B %d, %Y')}"
+    published = f'####<div class="pubdate">{date.strftime("%B %d, %Y")}</div>'
     md_content = md.replace(title, f"[{title}]({short_url})\n{published}", 1)
 
     return {

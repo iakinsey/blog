@@ -33,6 +33,10 @@ a:hover {
     overflow: auto;
 }
 
+.pubdate {
+    color: #ff9933;
+}
+
 #footer {
     padding-top: 25px;
     text-align: center;
