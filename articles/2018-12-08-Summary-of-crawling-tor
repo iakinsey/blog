@@ -20,8 +20,8 @@ Extract all .onion domains from the first Google search result page for the quer
 ### Frontier strategy
 
  * [Priority 0] Enumerate through the list of all unique unvisited domains.
- * [Priority 1] Enumerate through the list of all unvisited urls for websites that have a high in-degree value on the hidden service directed graph.
- * [Priority 2] Enumerate through the list of all unvisited urls.
+ * [Priority 1] Enumerate through the list of all unvisited URLs for websites that have a high in-degree value on the hidden service directed graph.
+ * [Priority 2] Enumerate through the list of all unvisited URLs.
 
 ## Stats
 
@@ -51,7 +51,7 @@ Extract all .onion domains from the first Google search result page for the quer
 
 
 ## Shortcomings/Improvements
-* The fetcher component of the crawler runs at a rate of approximately 1 request/second. This significantly limits the ability to exhaust the entire hidden service directory and url listing. Significant improvements to the fetcher component must be made in order to adequately gain a more complete picture of the darknet.
+* The fetcher component of the crawler runs at a rate of approximately 1 request/second. This significantly limits the ability to exhaust the entire hidden service directory and URL listing. Significant improvements to the fetcher component must be made in order to adequately gain a more complete picture of the darknet.
 
     * A target speed of 10 RPS should be achievable with a single network card and CPU.
 
@@ -90,7 +90,7 @@ Extract all .onion domains from the first Google search result page for the quer
 
 ### Enumeration of .onion hash space
 
-The crawler found a website that enumerated every single domain. Fortunately, the frontier did not prioritize this website, as there were a large number of domains that remained uncrawled. This page was of particular interest, due to the existence of a mirror. This mirror guaranteed that the enumerated websites would have an indegree of >= 2, which may fool some graph-based frontier strategies.
+The crawler found a website that enumerated every single domain. Fortunately, the frontier did not prioritize this website, as there were a large number of domains that remained uncrawled. This page was of particular interest, due to the existence of a mirror. This mirror guaranteed that the enumerated websites would have an in-degree of >= 2, which may fool some graph-based frontier strategies.
 
 Anomaly visualized within directed graph
 <div align="center">

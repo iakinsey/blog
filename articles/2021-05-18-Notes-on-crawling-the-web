@@ -142,7 +142,7 @@ not uncommon to find websites that include malicious XSS attacks.
 ### Crawler traps and depth limits
 
 Some websites may either be too large, or employ strategies to keep your
-crawler hyperfocused on their content.
+crawler hyper focused on their content.
 
 Mitigation:
 
