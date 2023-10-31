@@ -1,0 +1,75 @@
+# Cosplaying as Morusque, Stray's Guitar Robot - Part 1: The Face
+
+<div align="center">
+    <img src="/morusque/botface1.png" width="900" />
+</div>
+
+## Overview
+
+Morusque is one of the first characters players encounter in the video game Stray. He plays the random music sheets found throughout the game's first area. I was instantly captivated by this character and decided to cosplay him.
+
+This article is the first in a series detailing how I created a Morusque costume. We'll start by discussing the basic mechanics that control the face.
+
+<div align="center">
+    <img src="/morusque/gamecontent.jpg" width="900" />
+</div>
+
+## Design
+
+Overall, the design mimics a standard desktop computer, with the exception of the AR glasses and camera, which provide vision through the mask. In retrospect, a periscope would have been a more cost-effective and efficient option; this appears to be the standard for most other costumes that obstruct vision.
+
+The keypad enables the user to select which facial expression will appear on the LCD panel at any given time. Initially intended solely as a faithful representation of the character, it later evolved into a means of interacting with people.
+
+<div align="center">
+<img src="/morusque/botfaceimpl1.png" />
+</div>
+
+## The Distro
+
+The SBC should boot into a Linux instance and automatically run the botface script. An X11 instance is required.
+
+For my implementation, I used Lubuntu, a lightweight desktop environment that employs LXQt. Finding a suitable Lubuntu image for your SBC might be challenging. However, it's relatively straightforward to download an Ubuntu server or desktop image and install the Lubuntu desktop environment on it. You can find images here:
+- [Raspberry Pi](https://ubuntu.com/download/raspberry-pi)
+- [Libre Computer](https://hub.libre.computer/t/ubuntu-22-04-jammy-lts-for-libre-computer-boards/20)
+
+## Face script
+
+Code for the face script is available [here](https://github.com/iakinsey/botface). After downloading, execute the following commands
+
+    :::python
+    sudo apt install virtualenv
+    virtualenv -p `which python3` .faceenv
+    source .faceenv/bin/activate
+    pip install pygame
+
+The face relies solely on Pygame for all rendering logic. Keys 0-9 control which face is displayed. Some faces may appear briefly, while others remain on screen until changed.
+
+To create your own face, define a class in botface.faces with a render method and register it in main.py. A simple example can be found in botface.faces.yes; for more complex animations, refer to botface.faces.talking. 
+
+## Autostart
+
+Once powered on, the SBC should automatically run the botface script. LXQt offers a straightforward method for autostarting applications through the LXQt Configuration Center.
+
+<div align="center">
+<img src="/morusque/lxqt_autostart.png" />
+</div>
+
+To avoid the login prompt from blocking autostart, edit **/etc/sddm.conf**:
+
+    :::python
+    [Autologin]
+    User=<USERNAME HERE>
+    Session=lxqt.desktop
+    Relogin=true
+
+## Conclusion
+
+Overall, the setup is straightforward. You can build everything using off-the-shelf hardware and software. In a separate article, I'll discuss crafting the physical components that house the hardware and contribute to the aesthetics of the face.
+
+The end goal should resemble the following:
+
+<div align="center">
+    <video controls>
+        <source src="/morusque/morusque_play.mp4" type="video/mp4">
+    </video> 
+</div>

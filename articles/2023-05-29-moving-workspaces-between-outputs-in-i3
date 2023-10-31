@@ -1,0 +1,70 @@
+# Moving workspaces between outputs in i3
+
+A feature sorely missing from i3 is the ability to switch workspaces between displays. In i3, workspaces are tied to a single display, while in window managers like xmonad, workspaces can freely move between displays. Having recently migrated to i3 from xmonad, this was a feature I sorely needed. Fortunately, this behavior can be implemented with a small hack.
+
+Before beginning, make sure the following packages are installed:
+
+    :::python
+    xrandr
+    xdotool
+
+Put the following script somewhere and make it executable. This only works on horizontally stacked displays, and there's a small delay when moving between workspaces:
+
+
+    #!/bin/bash
+
+    workspace="$1"
+    displayinfo="$(xrandr --listmonitors | cut -d' ' -f4,6 | grep -v '^$')"
+    displays="$(echo "$displayinfo" | awk '{print $2}')"
+    maximums="$(echo "$displayinfo" | awk -F '/' '{sum += $1; print sum}')"
+    X="$(xdotool getmouselocation --shell | awk -F '=' '/X=/{ print $2 }')"
+    i3_output=$(i3-msg -t get_workspaces)
+
+    readarray -t d_arr <<< "$displays"
+    readarray -t m_arr <<< "$maximums"
+
+    for index in "${!d_arr[@]}"; do
+        concatenated="${d_arr[index]} ${m_arr[index]}"
+        maximum=${m_arr[index]}
+
+        if [ "$X" -le "$maximum" ]; then
+            workspaces=$(echo "$i3_output" | jq -r --arg output "${d_arr[index]}" '.[] | select(.output == $output) | .name')
+            readarray -t workspace_array <<< "$workspaces"
+
+            for workspace in "${workspace_array[@]}"; do
+                if [ "$workspace" -eq "$w"]; then
+                    i3-msg workspace number $1
+                    exit
+                fi
+            done
+
+            i3-msg "[workspace=\"$1\"]" move workspace to output ${d_arr[index]}
+            i3-msg workspace number $1
+            exit
+        fi
+    done
+
+Then add the following lines to ~/.config/i3/config. This assumes there are workspaces 1-10 and may vary depending on your individual configuration:
+
+    :::python
+    set $ws1 "1"
+    set $ws2 "2"
+    set $ws3 "3"
+    set $ws4 "4"
+    set $ws5 "5"
+    set $ws6 "6"
+    set $ws7 "7"
+    set $ws8 "8"
+    set $ws9 "9"
+    set $ws10 "10"
+
+    bindsym $mod+1 exec <path to script> $ws1
+    bindsym $mod+2 exec <path to script> $ws2
+    bindsym $mod+3 exec <path to script> $ws3
+    bindsym $mod+4 exec <path to script> $ws4
+    bindsym $mod+5 exec <path to script> $ws5
+    bindsym $mod+6 exec <path to script> $ws6
+    bindsym $mod+7 exec <path to script> $ws7
+    bindsym $mod+8 exec <path to script> $ws8
+    bindsym $mod+9 exec <path to script> $ws9
+    bindsym $mod+0 exec <path to script> $ws10

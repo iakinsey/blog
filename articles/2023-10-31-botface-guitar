@@ -1,0 +1,150 @@
+# Cosplaying as Morusque, Stray's Guitar Robot - Part 2: Guitar Software
+
+<div align="center">
+    <img src="/morusque/sbc.png" width="900" />
+</div>
+
+To enable the guitar to play music from the game, an [SBC](https://en.wikipedia.org/wiki/Single-board_computer) needs to run a script capable of playing audio on command. This can be understood through the following diagram:
+
+<div align="center">
+    <img src="/morusque/sbcimpl.png" />
+</div>
+
+During Anime Expo 2023, many people questioned why I chose an SBC over an Arduino. Frankly, I found the SBC easier to work with and didn't want to fuss with an Arduino. The only downside is the startup time, but it's a non-issue if you power it on once and leave it. Given the setup's low power consumption, longevity isn't a concern.
+
+## The Distro
+
+The SBC should boot into a headless Linux instance and automatically run a script. This script listens for a keypress and plays the associated media file. Any headless Linux distro will suffice; for this tutorial, I recommend flashing the SBC's SD card with a Debian-based distro such as Raspbian or Ubuntu.
+
+For my own implementation, I used Ubuntu Server. You can find the images here:
+- [Raspberry Pi](https://ubuntu.com/download/raspberry-pi)
+- [Libre Computer](https://hub.libre.computer/t/ubuntu-22-04-jammy-lts-for-libre-computer-boards/20)
+
+## Music Script
+
+The script waits for the user to press a number key between 1 and 9 and then plays the song mapped to that key. If any other key or the escape key is pressed, the music stops.
+
+Once you have flashed an OS onto the SD drive, create the following file **~/botmusic.py**:
+
+    :::python
+    from os.path import join
+    from pygame import mixer
+    from pynput import keyboard
+
+
+    SONGS  = {
+        1: "1_petite_valse.mp3",
+        2: "2_ballad_of_the_lonely_robot.mp3",
+        3: "3_untitled.mp3",
+        4: "4_the_way_you_compute_tonight.mp3",
+        5: "5_tomorrows.mp3",
+        6: "6_cooldown.mp3",
+        7: "7_mildly_important_information.mp3",
+        8: "8_unreadable.mp3"
+    }
+
+
+    def play_song(number):
+        file = join('assets', SONGS[number])
+        mixer.init()
+        mixer.music.load(file)
+        mixer.music.play(-1)
+
+    def stop_song():
+        try:
+            mixer.music.stop()
+        except:
+            pass
+
+    def on_press(key):
+        try:
+            if key.vk == 65437:
+                number = 5
+            else:
+                number = int(key.char)
+
+            stop_song()
+            play_song(number)
+        except:
+            pass
+
+    def on_release(key):
+        if key == keyboard.Key.esc:
+            stop_song()
+            return False
+
+    listener = keyboard.Listener(
+        on_press=on_press,
+        on_release=on_release)
+
+    listener.start()
+    listener.join()
+
+I'm not sure if the **if key.vk == 65437** segment is strictly necessary. During testing, I encountered an issue where the **5** key wasn't being detected for reasons I couldn't be bothered to test, and this was a workaround. It's worth testing it on your own to see if it affects your specific implementation.
+
+### Music Assets
+
+Create a folder to hold the music assets:
+
+    mkdir assets
+
+The **SONGS** variable points to several **mp3** files that are not included in this tutorial due to copyright restrictions. You will need to find or extract these songs on your own and place them in the **assets** folder. I recommend extracting the songs from either YouTube or SoundCloud using [youtube-dl](https://github.com/ytdl-org/youtube-dl).
+
+Once you have retrieved the sound assets, amplify them in Audacity. To do this, go to **Effect -> Volume and Compression -> Amplify**. Audacity will automatically determine the optimal **Amplification (db)** setting for your selection, so you don't need to adjust the slider. This will normalize the audio and make it more audible.
+
+<div align="center">
+    <img src="/morusque/amplify.png" />
+</div>
+
+### Preparing the Script's Environment
+
+Set up the virtual environment with the following commands:
+
+    sudo apt install virtualenv
+    virtualenv -p `which python3` .botenv
+    source .botenv/bin/activate
+    pip install pygame pynput
+
+Create the following file **~/botmusic**:
+
+    source ~/.botenv/bin/activate && python ~/botmusic.py
+
+Make it executable:
+
+    chmod +x ~/botmusic
+
+### Autostart
+
+Next, you need to ensure that the script automatically runs when the device is powered on.
+
+To start, Linux needs to automatically log into the user that will execute the script. Run the following command:
+
+    sudo systemctl edit getty@tty1.service
+
+After a text editor opens, replace everything with the following contents while setting the appropriate username:
+
+    [Service]
+    ExecStart=
+    ExecStart=-/sbin/agetty --noissue --autologin <USERNAME> %I $TERM
+    Type=idle
+
+Since the script will require root access as it listens for keyboard inputs without X11, run the following command:
+
+    visudo
+
+Add the following line so that root can execute the script:
+
+    %sudo ALL=(ALL:ALL) /home/<USERNAME>/botmusic
+
+OPTIONAL: If you are concerned about security, you can run the following commands. This step is not strictly necessary:
+
+    chmod 111 ~/botmusic
+    sudo chown -R root:root botmusic
+
+Finally, edit **~/.profile** and add the following line:
+
+    sudo ~/botmusic
+
+### Conclusion
+
+That's essentially it. I recommend booting up and testing the auto-start script multiple times before using the guitar in a production setting. To improve boot time, consider disabling unnecessary services like networking.

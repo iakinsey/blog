@@ -4,9 +4,9 @@ from functools import cache
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markdown import markdown
 from os import mkdir, listdir
-from os.path import abspath, dirname, join, realpath
+from os.path import abspath, dirname, isdir, join, realpath
 from re import match, search
-from shutil import copy, rmtree
+from shutil import copy, copytree, rmtree
 from urllib.parse import urljoin
 
 
@@ -87,7 +87,7 @@ def get_article(article):
     md_content = md.replace(title, f"[{title}]({short_url})\n{published}", 1)
 
     return {
-        "html": markdown(md_content),
+        "html": markdown(md_content, extensions=['codehilite']),
         "title": title,
         "name": article,
         "url": url,
@@ -128,7 +128,12 @@ def render_sitemap():
 
 def copy_static_assets():
     for file_name in listdir(STATIC_DIR):
-        copy(join(STATIC_DIR, file_name), DIST_DIR)
+        path = join(STATIC_DIR, file_name)
+
+        if isdir(path):
+            copytree(path, join(DIST_DIR, file_name))
+        else:
+            copy(path, DIST_DIR)
 
 
 def setup():
